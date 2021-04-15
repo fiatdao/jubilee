@@ -4,7 +4,7 @@
     General Contract checks
       ✓ should be deployed
     Contract Tests
-      ✓ Mint bond tokens in community vault address (45ms)
+      ✓ Mint kek tokens in community vault address (45ms)
       ✓ should fail if no owner tries to set allowance (38ms)
       ✓ should set allowance as owner (71ms)
       ✓ should transfer ownership (48ms)
@@ -83,7 +83,7 @@
       ✓ Harvest emits Harvest (179ms)
       ✓ MassHarvest emits MassHarvest (431ms)
 
-  YieldFarm Bond Pool
+  YieldFarm Kek Pool
     General Contract checks
       ✓ should be deployed
       ✓ Get epoch PoolSize and distribute tokens (145ms)
@@ -122,7 +122,7 @@ File                     |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered 
   CommunityVault.sol     |      100 |      100 |      100 |      100 |                |
   Staking.sol            |      100 |    93.75 |      100 |      100 |                |
   YieldFarm.sol          |      100 |       85 |      100 |      100 |                |
-  YieldFarmBond.sol      |      100 |       85 |      100 |      100 |                |
+  YieldFarmKek.sol      |      100 |       85 |      100 |      100 |                |
   YieldFarmLP.sol        |      100 |       85 |      100 |      100 |                |
  contracts/interfaces/   |      100 |      100 |      100 |      100 |                |
   IStaking.sol           |      100 |      100 |      100 |      100 |                |

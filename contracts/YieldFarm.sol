@@ -24,13 +24,13 @@ contract YieldFarm {
     address private _dai;
     address private _communityVault;
     // contracts
-    IERC20 private _bond;
+    IERC20 private _kek;
     IStaking private _staking;
 
 
     // fixed size array holdings total number of epochs + 1 (epoch 0 doesn't count)
     uint[] private epochs = new uint[](NR_OF_EPOCHS + 1);
-    // pre-computed variable for optimization. total amount of bond tokens to be distributed on each epoch
+    // pre-computed variable for optimization. total amount of kek tokens to be distributed on each epoch
     uint private _totalAmountPerEpoch;
 
     // id of last init epoch, for optimization purposes moved from struct to a single id.
@@ -46,8 +46,8 @@ contract YieldFarm {
     event Harvest(address indexed user, uint128 indexed epochId, uint256 amount);
 
     // constructor
-    constructor(address bondTokenAddress, address usdc, address susd, address dai, address stakeContract, address communityVault) public {
-        _bond = IERC20(bondTokenAddress);
+    constructor(address kekTokenAddress, address usdc, address susd, address dai, address stakeContract, address communityVault) public {
+        _kek = IERC20(kekTokenAddress);
         _usdc = usdc;
         _susd = susd;
         _dai = dai;
@@ -77,7 +77,7 @@ contract YieldFarm {
         emit MassHarvest(msg.sender, epochId.sub(lastEpochIdHarvested[msg.sender]), totalDistributedValue);
 
         if (totalDistributedValue > 0) {
-            _bond.transferFrom(_communityVault, msg.sender, totalDistributedValue);
+            _kek.transferFrom(_communityVault, msg.sender, totalDistributedValue);
         }
 
         return totalDistributedValue;
@@ -89,7 +89,7 @@ contract YieldFarm {
         require (lastEpochIdHarvested[msg.sender].add(1) == epochId, "Harvest in order");
         uint userReward = _harvest(epochId);
         if (userReward > 0) {
-            _bond.transferFrom(_communityVault, msg.sender, userReward);
+            _kek.transferFrom(_communityVault, msg.sender, userReward);
         }
         emit Harvest(msg.sender, epochId, userReward);
         return userReward;

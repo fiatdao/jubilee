@@ -7,7 +7,7 @@ import { CommunityVault, ERC20Mock, Staking, YieldFarmLP } from "../typechain";
 
 describe('YieldFarm Liquidity Pool', function () {
     let staking: Staking;
-    let bondToken: ERC20Mock;
+    let kekToken: ERC20Mock;
     let uniLP: ERC20Mock;
     let communityVault: CommunityVault;
     let yieldFarm: YieldFarmLP;
@@ -28,18 +28,18 @@ describe('YieldFarm Liquidity Pool', function () {
         userAddr = await user.getAddress();
 
         staking = (await deployContract("Staking", [epochStart, epochDuration])) as Staking;
-        bondToken = (await deployContract("ERC20Mock")) as ERC20Mock;
+        kekToken = (await deployContract("ERC20Mock")) as ERC20Mock;
         uniLP = (await deployContract("ERC20Mock")) as ERC20Mock;
 
-        communityVault = (await deployContract("CommunityVault", [bondToken.address])) as CommunityVault;
+        communityVault = (await deployContract("CommunityVault", [kekToken.address])) as CommunityVault;
         yieldFarm = (await deployContract("YieldFarmLP", [
-            bondToken.address,
+            kekToken.address,
             uniLP.address,
             staking.address,
             communityVault.address,
         ])) as YieldFarmLP;
 
-        await bondToken.mint(communityVault.address, distributedAmount);
+        await kekToken.mint(communityVault.address, distributedAmount);
         await communityVault.connect(creator).setAllowance(yieldFarm.address, distributedAmount);
     });
 
@@ -55,7 +55,7 @@ describe('YieldFarm Liquidity Pool', function () {
         it('should be deployed', async function () {
             expect(staking.address).to.not.equal(0)
             expect(yieldFarm.address).to.not.equal(0)
-            expect(bondToken.address).to.not.equal(0)
+            expect(kekToken.address).to.not.equal(0)
         })
 
         it('Get epoch PoolSize and distribute tokens', async function () {
@@ -65,11 +65,11 @@ describe('YieldFarm Liquidity Pool', function () {
 
             expect(await yieldFarm.getPoolSize(1)).to.equal(totalAmount)
             expect(await yieldFarm.getEpochStake(userAddr, 1)).to.equal(totalAmount)
-            expect(await bondToken.allowance(communityVault.address, yieldFarm.address)).to.equal(distributedAmount)
+            expect(await kekToken.allowance(communityVault.address, yieldFarm.address)).to.equal(distributedAmount)
             expect(await yieldFarm.getCurrentEpoch()).to.equal(2) // epoch on yield is staking - 1
 
             await yieldFarm.connect(user).harvest(1)
-            expect(await bondToken.balanceOf(userAddr)).to.equal(distributedAmount.div(numberOfEpochs))
+            expect(await kekToken.balanceOf(userAddr)).to.equal(distributedAmount.div(numberOfEpochs))
         })
     })
 
@@ -86,7 +86,7 @@ describe('YieldFarm Liquidity Pool', function () {
             await expect(yieldFarm.harvest(3)).to.be.revertedWith('Harvest in order')
             await (await yieldFarm.connect(user).harvest(1)).wait()
 
-            expect(await bondToken.balanceOf(userAddr)).to.equal(
+            expect(await kekToken.balanceOf(userAddr)).to.equal(
                 amount.mul(distributedAmount.div(numberOfEpochs)).div(totalAmount),
             )
             expect(await yieldFarm.connect(user).userLastEpochIdHarvested()).to.equal(1)
@@ -94,7 +94,7 @@ describe('YieldFarm Liquidity Pool', function () {
 
             await (await yieldFarm.connect(user).massHarvest()).wait()
             const totalDistributedAmount = amount.mul(distributedAmount.div(numberOfEpochs)).div(totalAmount).mul(7)
-            expect(await bondToken.balanceOf(userAddr)).to.equal(totalDistributedAmount)
+            expect(await kekToken.balanceOf(userAddr)).to.equal(totalDistributedAmount)
             expect(await yieldFarm.connect(user).userLastEpochIdHarvested()).to.equal(7)
             expect(await yieldFarm.lastInitializedEpoch()).to.equal(7) // epoch 7 have been initialized
         })
@@ -103,9 +103,9 @@ describe('YieldFarm Liquidity Pool', function () {
             await moveAtEpoch(epochStart, epochDuration, 30)
             expect(await yieldFarm.getPoolSize(1)).to.equal(amount)
             await yieldFarm.connect(creator).harvest(1)
-            expect(await bondToken.balanceOf(await creator.getAddress())).to.equal(0)
+            expect(await kekToken.balanceOf(await creator.getAddress())).to.equal(0)
             await yieldFarm.connect(creator).massHarvest()
-            expect(await bondToken.balanceOf(await creator.getAddress())).to.equal(0)
+            expect(await kekToken.balanceOf(await creator.getAddress())).to.equal(0)
         })
         it('harvest maximum 100 epochs', async function () {
             await depositUniLP(amount)
@@ -124,7 +124,7 @@ describe('YieldFarm Liquidity Pool', function () {
         it('it should return 0 if no deposit in an epoch', async function () {
             await moveAtEpoch(epochStart, epochDuration, 3)
             await yieldFarm.connect(user).harvest(1)
-            expect(await bondToken.balanceOf(await user.getAddress())).to.equal(0)
+            expect(await kekToken.balanceOf(await user.getAddress())).to.equal(0)
         })
     })
 

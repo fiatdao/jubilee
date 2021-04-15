@@ -2,7 +2,7 @@ const { ethers } = require('@nomiclabs/buidler')
 const BN = ethers.BigNumber
 
 async function main () {
-    const _bond = '0x64496f51779e400C5E955228E56fA41563Fb4dd8'
+    const _kek = '0x64496f51779e400C5E955228E56fA41563Fb4dd8'
     const _usdc = '0x6ddF381aBf26a9c57FBc34fcb9aceb7A101c84de'
     const _susd = '0x9ac3462b9A259bAEF295A8C90b2984738fd7AadD'
     const _dai = '0x95fD7265D5a4d8705d62A5840c5a0d69e019DCe4'
@@ -17,34 +17,34 @@ async function main () {
     console.log('Staking contract deployed to:', staking.address)
 
     const communityVault = await ethers.getContractFactory('CommunityVault')
-    const cv = await communityVault.deploy(_bond)
+    const cv = await communityVault.deploy(_kek)
     await cv.deployed()
     console.log('CommunityVault deployed to:', cv.address)
 
     const YieldFarm = await ethers.getContractFactory('YieldFarm')
     const YieldFarmLP = await ethers.getContractFactory('YieldFarmLP')
-    const YieldFarmBond = await ethers.getContractFactory('YieldFarmBond')
+    const YieldFarmKek = await ethers.getContractFactory('YieldFarmKek')
 
-    const yf = await YieldFarm.deploy(_bond, _usdc, _susd, _dai, staking.address, cv.address)
+    const yf = await YieldFarm.deploy(_kek, _usdc, _susd, _dai, staking.address, cv.address)
     await yf.deployed()
     console.log('YF deployed to:', yf.address)
 
-    const yflp = await YieldFarmLP.deploy(_bond, _unilp, staking.address, cv.address)
+    const yflp = await YieldFarmLP.deploy(_kek, _unilp, staking.address, cv.address)
     await yflp.deployed()
     console.log('YF_LP deployed to:', yflp.address)
 
-    const yfbond = await YieldFarmBond.deploy(_bond, staking.address, cv.address)
-    await yfbond.deployed()
-    console.log('YF_BOND deployed to:', yfbond.address)
+    const yfkek = await YieldFarmKek.deploy(_kek, staking.address, cv.address)
+    await yfkek.deployed()
+    console.log('YF_KEK deployed to:', yfkek.address)
 
     // initialize stuff
     const tenPow18 = BN.from(10).pow(18)
-    const bond = await ethers.getContractAt('ERC20', _bond)
-    await bond.transfer(cv.address, BN.from(2860000).mul(tenPow18))
+    const kek = await ethers.getContractAt('ERC20', _kek)
+    await kek.transfer(cv.address, BN.from(2860000).mul(tenPow18))
 
     await cv.setAllowance(yf.address, BN.from(800000).mul(tenPow18))
     await cv.setAllowance(yflp.address, BN.from(2000000).mul(tenPow18))
-    await cv.setAllowance(yfbond.address, BN.from(60000).mul(tenPow18))
+    await cv.setAllowance(yfkek.address, BN.from(60000).mul(tenPow18))
 }
 
 main()

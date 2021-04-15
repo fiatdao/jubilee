@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IStaking.sol";
 
-contract YieldFarmBond {
+contract YieldFarmGenericToken {
 
     // lib
     using SafeMath for uint;
@@ -22,7 +22,7 @@ contract YieldFarmBond {
     address private _poolTokenAddress;
     address private _communityVault;
     // contracts
-    IERC20 private _bond;
+    IERC20 private _kek;
     IStaking private _staking;
 
 
@@ -38,9 +38,9 @@ contract YieldFarmBond {
     event Harvest(address indexed user, uint128 indexed epochId, uint256 amount);
 
     // constructor
-    constructor(address bondTokenAddress, address stakeContract, address communityVault) public {
-        _bond = IERC20(bondTokenAddress);
-        _poolTokenAddress = bondTokenAddress;
+    constructor(address poolTokenAddress, address kekTokenAddress, address stakeContract, address communityVault) public {
+        _kek = IERC20(kekTokenAddress);
+        _poolTokenAddress = poolTokenAddress;
         _staking = IStaking(stakeContract);
         _communityVault = communityVault;
         epochDuration = _staking.epochDuration();
@@ -67,7 +67,7 @@ contract YieldFarmBond {
         emit MassHarvest(msg.sender, epochId - lastEpochIdHarvested[msg.sender], totalDistributedValue);
 
         if (totalDistributedValue > 0) {
-            _bond.transferFrom(_communityVault, msg.sender, totalDistributedValue);
+            _kek.transferFrom(_communityVault, msg.sender, totalDistributedValue);
         }
 
         return totalDistributedValue;
@@ -79,7 +79,7 @@ contract YieldFarmBond {
         require (lastEpochIdHarvested[msg.sender].add(1) == epochId, "Harvest in order");
         uint userReward = _harvest(epochId);
         if (userReward > 0) {
-            _bond.transferFrom(_communityVault, msg.sender, userReward);
+            _kek.transferFrom(_communityVault, msg.sender, userReward);
         }
         emit Harvest(msg.sender, epochId, userReward);
         return userReward;

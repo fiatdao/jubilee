@@ -3,13 +3,13 @@ import { BigNumber, Signer } from "ethers";
 import { moveAtEpoch, tenPow18 } from "./helpers/helpers";
 import { deployContract } from "./helpers/deploy";
 import { expect } from "chai";
-import { CommunityVault, ERC20Mock, Staking, YieldFarmBond } from "../typechain";
+import { CommunityVault, ERC20Mock, Staking, YieldFarmKek } from "../typechain";
 
-describe("YieldFarm Bond Pool", function () {
+describe("YieldFarm Kek Pool", function () {
     let staking: Staking;
-    let bondToken: ERC20Mock;
+    let kekToken: ERC20Mock;
     let communityVault: CommunityVault;
-    let yieldFarm: YieldFarmBond;
+    let yieldFarm: YieldFarmKek;
     let creator: Signer, user: Signer;
     let userAddr: string;
 
@@ -27,16 +27,16 @@ describe("YieldFarm Bond Pool", function () {
         userAddr = await user.getAddress();
 
         staking = (await deployContract("Staking", [epochStart, epochDuration])) as Staking;
-        bondToken = (await deployContract("ERC20Mock")) as ERC20Mock;
+        kekToken = (await deployContract("ERC20Mock")) as ERC20Mock;
 
-        communityVault = (await deployContract("CommunityVault", [bondToken.address])) as CommunityVault;
-        yieldFarm = (await deployContract("YieldFarmBond", [
-            bondToken.address,
+        communityVault = (await deployContract("CommunityVault", [kekToken.address])) as CommunityVault;
+        yieldFarm = (await deployContract("YieldFarmKek", [
+            kekToken.address,
             staking.address,
             communityVault.address
-        ])) as YieldFarmBond;
+        ])) as YieldFarmKek;
 
-        await bondToken.mint(communityVault.address, distributedAmount);
+        await kekToken.mint(communityVault.address, distributedAmount);
         await communityVault.connect(creator).setAllowance(yieldFarm.address, distributedAmount);
     });
 
@@ -52,28 +52,28 @@ describe("YieldFarm Bond Pool", function () {
         it("should be deployed", async function () {
             expect(staking.address).to.not.equal(0);
             expect(yieldFarm.address).to.not.equal(0);
-            expect(bondToken.address).to.not.equal(0);
+            expect(kekToken.address).to.not.equal(0);
         });
 
         it("Get epoch PoolSize and distribute tokens", async function () {
-            await depositBond(amount);
+            await depositKek(amount);
             await moveAtEpoch(epochStart, epochDuration, 6);
             const totalAmount = amount;
 
             expect(await yieldFarm.getPoolSize(1)).to.equal(totalAmount);
             expect(await yieldFarm.getEpochStake(userAddr, 1)).to.equal(totalAmount);
-            expect(await bondToken.allowance(communityVault.address,
+            expect(await kekToken.allowance(communityVault.address,
                 yieldFarm.address)).to.equal(distributedAmount);
             expect(await yieldFarm.getCurrentEpoch()).to.equal(2); // epoch on yield is staking - 1
 
             await yieldFarm.connect(user).harvest(1);
-            expect(await bondToken.balanceOf(userAddr)).to.equal(distributedAmount.div(numberOfEpochs));
+            expect(await kekToken.balanceOf(userAddr)).to.equal(distributedAmount.div(numberOfEpochs));
         });
     });
 
     describe("Contract Tests", function () {
         it("User harvest and mass Harvest", async function () {
-            await depositBond(amount);
+            await depositKek(amount);
             const totalAmount = amount;
             // initialize epochs meanwhile
             await moveAtEpoch(epochStart, epochDuration, 12);
@@ -84,7 +84,7 @@ describe("YieldFarm Bond Pool", function () {
             await expect(yieldFarm.harvest(3)).to.be.revertedWith("Harvest in order");
             await (await yieldFarm.connect(user).harvest(1)).wait();
 
-            expect(await bondToken.balanceOf(userAddr)).to.equal(
+            expect(await kekToken.balanceOf(userAddr)).to.equal(
                 amount.mul(distributedAmount.div(numberOfEpochs)).div(totalAmount)
             );
             expect(await yieldFarm.connect(user).userLastEpochIdHarvested()).to.equal(1);
@@ -93,21 +93,21 @@ describe("YieldFarm Bond Pool", function () {
             await (await yieldFarm.connect(user).massHarvest()).wait();
             const totalDistributedAmount = amount.mul(
                 distributedAmount.div(numberOfEpochs)).div(totalAmount).mul(7);
-            expect(await bondToken.balanceOf(userAddr)).to.equal(totalDistributedAmount);
+            expect(await kekToken.balanceOf(userAddr)).to.equal(totalDistributedAmount);
             expect(await yieldFarm.connect(user).userLastEpochIdHarvested()).to.equal(7);
             expect(await yieldFarm.lastInitializedEpoch()).to.equal(7); // epoch 7 have been initialized
         });
         it("Have nothing to harvest", async function () {
-            await depositBond(amount);
+            await depositKek(amount);
             await moveAtEpoch(epochStart, epochDuration, 10);
             expect(await yieldFarm.getPoolSize(1)).to.equal(amount);
             await yieldFarm.connect(creator).harvest(1);
-            expect(await bondToken.balanceOf(await creator.getAddress())).to.equal(0);
+            expect(await kekToken.balanceOf(await creator.getAddress())).to.equal(0);
             await yieldFarm.connect(creator).massHarvest();
-            expect(await bondToken.balanceOf(await creator.getAddress())).to.equal(0);
+            expect(await kekToken.balanceOf(await creator.getAddress())).to.equal(0);
         });
         it("harvest maximum 12 epochs", async function () {
-            await depositBond(amount);
+            await depositKek(amount);
             const totalAmount = amount;
             await moveAtEpoch(epochStart, epochDuration, 300);
 
@@ -123,7 +123,7 @@ describe("YieldFarm Bond Pool", function () {
         it("it should return 0 if no deposit in an epoch", async function () {
             await moveAtEpoch(epochStart, epochDuration, 6);
             await yieldFarm.connect(user).harvest(1);
-            expect(await bondToken.balanceOf(await user.getAddress())).to.equal(0);
+            expect(await kekToken.balanceOf(await user.getAddress())).to.equal(0);
         });
         it("it should be epoch1 when staking epoch is 5", async function () {
             await moveAtEpoch(epochStart, epochDuration, 5);
@@ -134,24 +134,24 @@ describe("YieldFarm Bond Pool", function () {
 
     describe("Events", function () {
         it("Harvest emits Harvest", async function () {
-            await depositBond(amount);
+            await depositKek(amount);
             await moveAtEpoch(epochStart, epochDuration, 9);
 
             await expect(yieldFarm.connect(user).harvest(1)).to.emit(yieldFarm, "Harvest");
         });
 
         it("MassHarvest emits MassHarvest", async function () {
-            await depositBond(amount);
+            await depositKek(amount);
             await moveAtEpoch(epochStart, epochDuration, 9);
 
             await expect(yieldFarm.connect(user).massHarvest()).to.emit(yieldFarm, "MassHarvest");
         });
     });
 
-    async function depositBond(x: BigNumber, u = user) {
+    async function depositKek(x: BigNumber, u = user) {
         const ua = await u.getAddress();
-        await bondToken.mint(ua, x);
-        await bondToken.connect(u).approve(staking.address, x);
-        return await staking.connect(u).deposit(bondToken.address, x);
+        await kekToken.mint(ua, x);
+        await kekToken.connect(u).approve(staking.address, x);
+        return await staking.connect(u).deposit(kekToken.address, x);
     }
 });
