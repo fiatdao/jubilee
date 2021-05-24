@@ -5,20 +5,21 @@ import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IStaking.sol";
 
-contract YieldFarmLP {
+contract YieldFarmGenericToken {
 
     // lib
     using SafeMath for uint;
     using SafeMath for uint128;
 
     // constants
-    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 2000000;
-    uint public constant NR_OF_EPOCHS = 100;
+    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 10000;
+    uint public constant NR_OF_EPOCHS = 20;
+    uint128 public constant EPOCHS_DELAYED_FROM_STAKING_CONTRACT = 0;
 
     // state variables
 
     // addreses
-    address private _uniLP;
+    address private _poolTokenAddress;
     address private _communityVault;
     // contracts
     IERC20 private _kek;
@@ -37,13 +38,13 @@ contract YieldFarmLP {
     event Harvest(address indexed user, uint128 indexed epochId, uint256 amount);
 
     // constructor
-    constructor(address kekTokenAddress, address uniLP, address stakeContract, address communityVault) public {
+    constructor(address poolTokenAddress, address kekTokenAddress, address stakeContract, address communityVault) public {
         _kek = IERC20(kekTokenAddress);
-        _uniLP = uniLP;
+        _poolTokenAddress = poolTokenAddress;
         _staking = IStaking(stakeContract);
         _communityVault = communityVault;
         epochDuration = _staking.epochDuration();
-        epochStart = _staking.epoch1Start() + epochDuration;
+        epochStart = _staking.epoch1Start() + epochDuration.mul(EPOCHS_DELAYED_FROM_STAKING_CONTRACT);
         _totalAmountPerEpoch = TOTAL_DISTRIBUTED_AMOUNT.mul(10**18).div(NR_OF_EPOCHS);
     }
 
@@ -74,7 +75,7 @@ contract YieldFarmLP {
     function harvest (uint128 epochId) external returns (uint){
         // checks for requested epoch
         require (_getEpochId() > epochId, "This epoch is in the future");
-        require(epochId <= NR_OF_EPOCHS, "Maximum number of epochs is 100");
+        require(epochId <= NR_OF_EPOCHS, "Maximum number of epochs is 12");
         require (lastEpochIdHarvested[msg.sender].add(1) == epochId, "Harvest in order");
         uint userReward = _harvest(epochId);
         if (userReward > 0) {
@@ -131,19 +132,17 @@ contract YieldFarmLP {
         .div(epochs[epochId]);
     }
 
+    // retrieve _poolTokenAddress token balance
     function _getPoolSize(uint128 epochId) internal view returns (uint) {
-        // retrieve unilp token balance
-        return _staking.getEpochPoolSize(_uniLP, _stakingEpochId(epochId));
+        return _staking.getEpochPoolSize(_poolTokenAddress, _stakingEpochId(epochId));
     }
 
-
-
+    // retrieve _poolTokenAddress token balance per user per epoch
     function _getUserBalancePerEpoch(address userAddress, uint128 epochId) internal view returns (uint){
-        // retrieve unilp token balance per user per epoch
-        return _staking.getEpochUserBalance(userAddress, _uniLP, _stakingEpochId(epochId));
+        return _staking.getEpochUserBalance(userAddress, _poolTokenAddress, _stakingEpochId(epochId));
     }
 
-    // compute epoch id from blocktimestamp and epochstart date
+    // compute epoch id from block.timestamp and epochStart date
     function _getEpochId() internal view returns (uint128 epochId) {
         if (block.timestamp < epochStart) {
             return 0;
@@ -151,8 +150,8 @@ contract YieldFarmLP {
         epochId = uint128(block.timestamp.sub(epochStart).div(epochDuration).add(1));
     }
 
-    // get the staking epoch which is 1 epoch more
+    // get the staking epoch
     function _stakingEpochId(uint128 epochId) pure internal returns (uint128) {
-        return epochId + 1;
+        return epochId + EPOCHS_DELAYED_FROM_STAKING_CONTRACT;
     }
 }
