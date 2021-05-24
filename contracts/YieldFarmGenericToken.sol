@@ -12,7 +12,7 @@ contract YieldFarmGenericToken {
     using SafeMath for uint128;
 
     // constants
-    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 10000;
+    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 10_000_000;
     uint public constant NR_OF_EPOCHS = 20;
     uint128 public constant EPOCHS_DELAYED_FROM_STAKING_CONTRACT = 0;
 
@@ -22,7 +22,7 @@ contract YieldFarmGenericToken {
     address private _poolTokenAddress;
     address private _communityVault;
     // contracts
-    IERC20 private _kek;
+    IERC20 private _xyz;
     IStaking private _staking;
 
 
@@ -38,8 +38,8 @@ contract YieldFarmGenericToken {
     event Harvest(address indexed user, uint128 indexed epochId, uint256 amount);
 
     // constructor
-    constructor(address poolTokenAddress, address kekTokenAddress, address stakeContract, address communityVault) public {
-        _kek = IERC20(kekTokenAddress);
+    constructor(address poolTokenAddress, address xyzTokenAddress, address stakeContract, address communityVault) public {
+        _xyz = IERC20(xyzTokenAddress);
         _poolTokenAddress = poolTokenAddress;
         _staking = IStaking(stakeContract);
         _communityVault = communityVault;
@@ -67,7 +67,7 @@ contract YieldFarmGenericToken {
         emit MassHarvest(msg.sender, epochId - lastEpochIdHarvested[msg.sender], totalDistributedValue);
 
         if (totalDistributedValue > 0) {
-            _kek.transferFrom(_communityVault, msg.sender, totalDistributedValue);
+            _xyz.transferFrom(_communityVault, msg.sender, totalDistributedValue);
         }
 
         return totalDistributedValue;
@@ -79,7 +79,7 @@ contract YieldFarmGenericToken {
         require (lastEpochIdHarvested[msg.sender].add(1) == epochId, "Harvest in order");
         uint userReward = _harvest(epochId);
         if (userReward > 0) {
-            _kek.transferFrom(_communityVault, msg.sender, userReward);
+            _xyz.transferFrom(_communityVault, msg.sender, userReward);
         }
         emit Harvest(msg.sender, epochId, userReward);
         return userReward;
@@ -115,7 +115,7 @@ contract YieldFarmGenericToken {
 
     function _harvest (uint128 epochId) internal returns (uint) {
         // try to initialize an epoch. if it can't it fails
-        // if it fails either user either a BarnBridge account will init not init epochs
+        // if it fails either user either a UniverseXYZ account will init not init epochs
         if (lastInitializedEpoch < epochId) {
             _initEpoch(epochId);
         }

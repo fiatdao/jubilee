@@ -1,11 +1,11 @@
-# Barnbridge YieldFarm contracts
+# UniverseXYZ YieldFarm contracts
 
 ## Running tests
 **Note:** The result of tests is readily available [here](./test-results.md).
 
 ### 1. Clone this repo
 ```shell
-git clone git@github.com:BarnBridge/BarnBridge-YieldFarming.git
+git clone git@github.com:UniverseXYZ/XYZ-YieldFarming.git
 ```
 
 ### 2. Install dependencies
@@ -36,7 +36,7 @@ npm run coverage
 
  [Yield Farm LP](https://etherscan.io/address/0xC25c37c387C5C909a94055F4f16184ca325D3a76#code)
 
- [Yield Farm KEK](https://etherscan.io/address/0x3FdFb07472ea4771E1aD66FD3b87b265Cd4ec112#code)
+ [Yield Farm Xyz](https://etherscan.io/address/0x3FdFb07472ea4771E1aD66FD3b87b265Cd4ec112#code)
 
 ## Rinkeby
 Community Vault: 0x3317cc09ce0da6751b4E0b7c56114bA833D3d232

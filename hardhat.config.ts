@@ -31,7 +31,7 @@ const cfg: HardhatUserConfig = {
     etherscan: config.etherscan,
 
     abiExporter: {
-        only: ['Staking', 'YieldFarm', 'YieldFarmLP', 'YieldFarmKek', 'CommunityVault'],
+        only: ['Staking', 'YieldFarm', 'YieldFarmLP', 'YieldFarmXyz', 'CommunityVault'],
         clear: true,
     },
 

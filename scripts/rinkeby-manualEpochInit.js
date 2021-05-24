@@ -1,15 +1,18 @@
-const { ethers } = require('@nomiclabs/buidler')
+const { ethers } = require('hardhat')
 
 async function main () {
     const tokens = [
-        '0x6ddF381aBf26a9c57FBc34fcb9aceb7A101c84de',
-        '0x9ac3462b9A259bAEF295A8C90b2984738fd7AadD',
-        '0x95fD7265D5a4d8705d62A5840c5a0d69e019DCe4',
-        '0x9f11cd3f75920f3ab86ecb12f4f56398c2f854b2',
-        '0x64496f51779e400C5E955228E56fA41563Fb4dd8',
+        '0x7bdf7a5ab7a18985d1b1cb09b69338ba0c78f416',
+        '0x2b9781477b64e48a263854B778d548Fc9560CbB5',
+        '0xfdf1a271f12148e11254dd63178ee1fbb8b4c75e',
+        '0xdf695cf3118d504c33415cbc465dd469b7e4c881',
+        '0x449ae80a139e724dd2506b8b312e898bf713fea9',
+        '0xf3461cd59e3a3c25fd5f4c471df724a74cec4eeb',
+        '0xff85fe0a2e8d66b9101305ab1522a37e0a50c4ef',
+        '0xe0dddd62431f705325f8d1e0474a31589622f54a'
     ]
 
-    const _staking = '0x470D6Cd82918B90AF0d961Eb2620f8a2efcE5ac7'
+    const _staking = '0x831B60137F2f9F37846BEB61C8E0913eb4BeC41b'
     const s = await ethers.getContractAt('Staking', _staking)
 
     const currentEpoch = parseInt(await s.getCurrentEpoch())
