@@ -25,7 +25,7 @@ UniverseXYZ YeldFarming is a fork of BarnBridge YeldFarming. Here you can find t
 ### [Smart Contract External Audit](https://github.com/BarnBridge/BarnBridge-YieldFarming/blob/master/BarnBridge-Yield-Farming-and-Incentivization-AUDIT.pdf)
 
 ## Smart Contract Architecture
-![yf sc architecture](https://gblobscdn.gitbook.com/assets%2F-MIu3rMElIO-jG68zdaV%2F-MXHutr14sDo0hYi6gg3%2F-MXHwLeh-A73UmkmjGJX%2Ftokens%20staking.png?alt=media&token=20ef1aba-783c-4f86-93a6-f74cf3cca1da)
+![yf sc architecture](https://user-images.githubusercontent.com/4047772/120464712-e7bee680-c3a5-11eb-97ea-80df581af5ef.png)
 
 ## Active Contracts
 ### YieldFarmGenericToken.sol
