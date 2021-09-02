@@ -2,6 +2,23 @@ const hre = require('hardhat')
 const ethers = hre.ethers;
 const BN = ethers.BigNumber
 
+async function deployMainnet(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
+    const _sushiSwapToken = ''; // TODO
+
+    const poolTokenAddresses = [
+        { name: 'XYZ', address: '0x618679df9efcd19694bb1daa8d00718eacfa2883' },
+        { name: 'MANA', address: '0x0f5d2fb29fb7d3cfee444a200298f468908cc942' },
+        { name: 'SAND', address: '0x3845badade8e6dff049820680d1f14bd3903a5d0' },
+        { name: 'ILV', address: '0x767fe9edc9e0df98e07454847909b5e959d7ca0e' },
+        { name: 'AXS', address: '0xbb0e17ef65f82ab018d8edd776e8dd940327b28b' },
+        { name: 'BOND', address: '0x0391d2021f89dc339f60fff84546ea23e337750f' },
+        { name: 'SNX', address: '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f' },
+        { name: 'SUSHI', address: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2' }
+    ];
+
+    return deploy(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch, _sushiSwapToken, poolTokenAddresses)
+}
+
 async function deployRinkeby(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
     const _sushiSwapToken = '0x43f0265F0A0E81365051220aa24E9CeC4796a741'
 
