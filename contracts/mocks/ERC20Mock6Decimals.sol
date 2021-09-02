@@ -3,7 +3,7 @@ pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract ERC20Mock6Decimals is ERC20("ERC20Mock6decimals", "MCK") {
+contract ERC20Mock6Decimals is ERC20 {
     bool public transferFromCalled = false;
 
     bool public transferCalled = false;
@@ -11,7 +11,8 @@ contract ERC20Mock6Decimals is ERC20("ERC20Mock6decimals", "MCK") {
     uint256 public transferAmount = 0;
     uint8 private _decimals;
 
-    constructor () public {
+    constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) public {
+        _mint(msg.sender, initialSupply);
         _decimals = 6;
     }
 

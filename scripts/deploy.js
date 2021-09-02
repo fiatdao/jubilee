@@ -1,40 +1,87 @@
-const { ethers } = require('@nomiclabs/buidler')
+const hre = require('hardhat')
+const ethers = hre.ethers;
+const BN = ethers.BigNumber
 
-async function main () {
-    const _xyz = '0x0391D2021f89DC339F60Fff84546EA23E337750f'
-    const _usdc = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-    const _susd = '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51'
-    const _dai = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
-    const _unilp = '0x6591c4BcD6D7A1eb4E537DA8B78676C1576Ba244'
+async function deployRinkeby(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
+    const _sushiSwapToken = '0x43f0265F0A0E81365051220aa24E9CeC4796a741'
 
-    // We get the contract to deploy
+    const poolTokenAddresses = [
+        { name: 'ENTER AAVE', address: '0xB81Ed1453Ab2db133A10a8c97888BEbe82cFac9C' },
+        { name: 'ENTER XYZ', address: '0x5FfA3420213348a11b54063e3Dc0fda5e87891ab' },
+        { name: 'ENTER ILV', address: '0x969e55dFA15396Da623769C0A0D651a187EbDc67' },
+        { name: 'ENTER BOND', address: '0x038D06578Bb35EaE582EDfCc869fFa0E93761F2B' }
+    ];
+
+    return deploy(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch, _sushiSwapToken, poolTokenAddresses)
+}
+
+async function deploy(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch, _sushiSwapToken, poolTokenAddresses) {
+    await hre.run('compile'); // We are compiling the contracts using subtask
+    const [deployer] = await ethers.getSigners(); // We are getting the deployer
+
+    const deployedPoolAddresses = [];
+
+    console.log('Deploying contracts with the account:', deployer.address); // We are printing the address of the deployer
+    console.log('Account balance:', (await deployer.getBalance()).toString()); // We are printing the account balance
+
     const Staking = await ethers.getContractFactory('Staking')
-    // start at 2020-10-19 00:00:00; epoch duration 7 days
-    const staking = await Staking.deploy(1603065600, 604800)
+    const epochTime = 60 * 60 * 24 * daysPerEpoch;
+    const staking = await Staking.deploy(startTime, epochTime)
     await staking.deployed()
 
     console.log('Staking contract deployed to:', staking.address)
 
-    const communityVault = await ethers.getContractFactory('CommunityVault')
-    const cv = await communityVault.deploy(_xyz)
-    await cv.deployed()
-    console.log('CommunityVault deployed to:', cv.address)
+    const YieldFarmGenericToken = await ethers.getContractFactory('YieldFarmGenericToken')
 
-    const YieldFarm = await ethers.getContractFactory('YieldFarm')
-    const YieldFarmLP = await ethers.getContractFactory('YieldFarmLP')
+    for (const poolTokenAddress of poolTokenAddresses) {
+        console.log(`Deploy ${poolTokenAddress.name} farming`)
+        const yf = await YieldFarmGenericToken.deploy(poolTokenAddress.address, entrTokenAddress, staking.address, communityVaultAddress)
+        await yf.deployed()
+        console.log(`YF pool, ${poolTokenAddress.name}: `, yf.address)
+        deployedPoolAddresses.push(yf.address)
+    }
 
-    const yf = await YieldFarm.deploy(_xyz, _usdc, _susd, _dai, staking.address, cv.address)
+    // initialize stuff
+    const tenPow18 = BN.from(10).pow(18)
+    const cv = await ethers.getContractAt('CommunityVault', communityVaultAddress)
+
+    for (const deployedPoolAddress of deployedPoolAddresses) {
+        console.log("Setting allowance...")
+        await cv.setAllowance(deployedPoolAddress, BN.from(100000).mul(tenPow18))
+    }
+
+    const YieldFarmSushiLPToken = await ethers.getContractFactory('YieldFarmSushiLPToken')
+    const yf = await YieldFarmSushiLPToken.deploy(_sushiSwapToken, entrTokenAddress, staking.address, communityVaultAddress)
     await yf.deployed()
-    console.log('YF deployed to:', yf.address)
+    console.log(`YieldFarmSushiLPToken pool : `, yf.address)
+    await cv.setAllowance(yf.address, BN.from(600000).mul(tenPow18))
 
-    const yflp = await YieldFarmLP.deploy(_xyz, _unilp, staking.address, cv.address)
-    await yflp.deployed()
-    console.log('YF_LP deployed to:', yflp.address)
+    console.log(`Verifying Staking ...`);
+    await hre.run("verify:verify", {
+        address: staking.address,
+        constructorArguments: [startTime, epochTime],
+        contract: "contracts/Staking.sol:Staking",
+    });
+
+    for (let i = 0; i < poolTokenAddresses.length; i++) {
+        const poolTokenAddress = poolTokenAddresses[i];
+        const deployedPoolAddress = deployedPoolAddresses[i];
+        console.log(`Verifying ${poolTokenAddress.name} farming`);
+        await hre.run("verify:verify", {
+            address: deployedPoolAddress,
+            constructorArguments: [poolTokenAddress.address, entrTokenAddress, staking.address, communityVaultAddress],
+            contract: "contracts/YieldFarmGenericToken.sol:YieldFarmGenericToken",
+        })
+    }
+
+    console.log(`Verifying Sushi ...`);
+    await hre.run("verify:verify", {
+        address: yf.address,
+        constructorArguments: [_sushiSwapToken, entrTokenAddress, staking.address, communityVaultAddress],
+        contract: "contracts/YieldFarmSushiLPToken.sol:YieldFarmSushiLPToken",
+    });
+
+    console.log('Done!');
 }
 
-main()
-    .then(() => process.exit(0))
-    .catch(error => {
-        console.error(error)
-        process.exit(1)
-    })
+module.exports = { deployRinkeby }
