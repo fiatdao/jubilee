@@ -47,14 +47,14 @@ async function deploy(entrTokenAddress, communityVaultAddress, startTime, daysPe
 
     for (const deployedPoolAddress of deployedPoolAddresses) {
         console.log("Setting allowance...")
-        await cv.setAllowance(deployedPoolAddress, BN.from(100000).mul(tenPow18))
+        await cv.setAllowance(deployedPoolAddress, BN.from(1000000).mul(tenPow18))
     }
 
     const YieldFarmSushiLPToken = await ethers.getContractFactory('YieldFarmSushiLPToken')
     const yf = await YieldFarmSushiLPToken.deploy(_sushiSwapToken, entrTokenAddress, staking.address, communityVaultAddress)
     await yf.deployed()
     console.log(`YieldFarmSushiLPToken pool : `, yf.address)
-    await cv.setAllowance(yf.address, BN.from(600000).mul(tenPow18))
+    await cv.setAllowance(yf.address, BN.from(6000000).mul(tenPow18))
 
     console.log(`Verifying Staking ...`);
     await hre.run("verify:verify", {
