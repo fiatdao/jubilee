@@ -73,6 +73,9 @@ async function deploy(entrTokenAddress, communityVaultAddress, startTime, daysPe
     console.log(`YieldFarmSushiLPToken pool : `, yf.address)
     await cv.setAllowance(yf.address, BN.from(6000000).mul(tenPow18))
 
+    console.log("Manual initing epoch 0...");
+    await staking.manualEpochInit([yf.address, ...deployedPoolAddresses], 0)
+
     console.log(`Verifying Staking ...`);
     await hre.run("verify:verify", {
         address: staking.address,
