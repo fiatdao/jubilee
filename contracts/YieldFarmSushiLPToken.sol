@@ -12,9 +12,9 @@ contract YieldFarmSushiLPToken {
     using SafeMath for uint128;
 
     // constants
-    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 60_000_000;
+    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 6_000_000;
     uint public constant NR_OF_EPOCHS = 100;
-    uint128 public constant EPOCHS_DELAYED_FROM_STAKING_CONTRACT = 1;
+    uint128 public constant EPOCHS_DELAYED_FROM_STAKING_CONTRACT = 0;
 
     // state variables
 
@@ -22,7 +22,7 @@ contract YieldFarmSushiLPToken {
     address private _poolTokenAddress;
     address private _communityVault;
     // contracts
-    IERC20 private _xyz;
+    IERC20 private _entr;
     IStaking private _staking;
 
 
@@ -38,8 +38,8 @@ contract YieldFarmSushiLPToken {
     event Harvest(address indexed user, uint128 indexed epochId, uint256 amount);
 
     // constructor
-    constructor(address poolTokenAddress, address xyzTokenAddress, address stakeContract, address communityVault) public {
-        _xyz = IERC20(xyzTokenAddress);
+    constructor(address poolTokenAddress, address entrTokenAddress, address stakeContract, address communityVault) public {
+        _entr = IERC20(entrTokenAddress);
         _poolTokenAddress = poolTokenAddress;
         _staking = IStaking(stakeContract);
         _communityVault = communityVault;
@@ -67,7 +67,7 @@ contract YieldFarmSushiLPToken {
         emit MassHarvest(msg.sender, epochId - lastEpochIdHarvested[msg.sender], totalDistributedValue);
 
         if (totalDistributedValue > 0) {
-            _xyz.transferFrom(_communityVault, msg.sender, totalDistributedValue);
+            _entr.transferFrom(_communityVault, msg.sender, totalDistributedValue);
         }
 
         return totalDistributedValue;
@@ -79,7 +79,7 @@ contract YieldFarmSushiLPToken {
         require (lastEpochIdHarvested[msg.sender].add(1) == epochId, "Harvest in order");
         uint userReward = _harvest(epochId);
         if (userReward > 0) {
-            _xyz.transferFrom(_communityVault, msg.sender, userReward);
+            _entr.transferFrom(_communityVault, msg.sender, userReward);
         }
         emit Harvest(msg.sender, epochId, userReward);
         return userReward;
@@ -115,7 +115,7 @@ contract YieldFarmSushiLPToken {
 
     function _harvest (uint128 epochId) internal returns (uint) {
         // try to initialize an epoch. if it can't it fails
-        // if it fails either user either a UniverseXYZ account will init not init epochs
+        
         if (lastInitializedEpoch < epochId) {
             _initEpoch(epochId);
         }

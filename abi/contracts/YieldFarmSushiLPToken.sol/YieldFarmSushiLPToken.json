@@ -8,7 +8,7 @@
       },
       {
         "internalType": "address",
-        "name": "xyzTokenAddress",
+        "name": "entrTokenAddress",
         "type": "address"
       },
       {
