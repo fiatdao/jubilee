@@ -50,6 +50,26 @@ task("deploy-rinkeby", "Deploys staking and farming to rinkeby")
         await deployRinkeby(token, vault, start, days);
     });
 
+task("deploy-LP", "Deploys LP")
+    .addParam("token", "The token of the rewards")
+    .addParam("vault", "The valut address")
+    .addParam("staking", "The staking contract address")
+    .addParam("lptoken", "The LP token")
+    .setAction(async ({ vault, token, staking, lptoken }, hre, runSuper) => {
+        const { deploySushiLPYF } = require("./scripts/deploy");
+        await deploySushiLPYF(vault, token, staking, lptoken);
+    });
+
+task("deploy-YF", "Deploys Generif YF")
+    .addParam("token", "The token of the rewards")
+    .addParam("vault", "The valut address")
+    .addParam("staking", "The staking contract address")
+    .addParam("farmingtoken", "The YF token")
+    .setAction(async ({ vault, token, staking, farmingtoken }, hre, runSuper) => {
+        const { deployGenericYF } = require("./scripts/deploy");
+        await deployGenericYF(vault, token, staking, farmingtoken);
+    });
+
 const cfg: HardhatUserConfig = {
     solidity: {
         version: '0.6.12',
