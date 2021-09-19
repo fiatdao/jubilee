@@ -50,6 +50,16 @@ task("deploy-rinkeby", "Deploys staking and farming to rinkeby")
         await deployRinkeby(token, vault, start, days);
     });
 
+task("deploy-mainnet", "Deploys staking and farming to mainnet")
+    .addParam("token", "The token of the rewards")
+    .addParam("vault", "The valut address")
+    .addParam("start", "The timestamp of the staking")
+    .addParam("days", "Duration in days for an epoch")
+    .setAction(async ({ token, vault, start, days }, hre, runSuper) => {
+        const { deployMainnet } = require("./scripts/deploy");
+        await deployMainnet(token, vault, start, days);
+    });
+
 task("deploy-LP", "Deploys LP")
     .addParam("token", "The token of the rewards")
     .addParam("vault", "The valut address")

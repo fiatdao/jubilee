@@ -12,7 +12,7 @@ async function deployMainnet(entrTokenAddress, communityVaultAddress, startTime,
         { name: 'AXS', address: '0xbb0e17ef65f82ab018d8edd776e8dd940327b28b' },
         { name: 'BOND', address: '0x0391d2021f89dc339f60fff84546ea23e337750f' },
         { name: 'SNX', address: '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f' },
-        { name: 'LEAG', address: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2' }
+        // { name: 'LEAG', address: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2' }
     ];
 
     return deploy(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch, _sushiSwapToken, poolTokenAddresses)
@@ -156,4 +156,4 @@ async function deploy(entrTokenAddress, communityVaultAddress, startTime, daysPe
     console.log('Done!');
 }
 
-module.exports = { deployRinkeby, deploySushiLPYF, deployGenericYF }
+module.exports = { deployRinkeby, deploySushiLPYF, deployGenericYF, deployMainnet }
