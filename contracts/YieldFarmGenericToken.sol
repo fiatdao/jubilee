@@ -12,7 +12,7 @@ contract YieldFarmGenericToken {
     using SafeMath for uint128;
 
     // constants
-    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 1_000_000;
+    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 100_000;
     uint public constant NR_OF_EPOCHS = 20;
     uint128 public constant EPOCHS_DELAYED_FROM_STAKING_CONTRACT = 0;
 
@@ -22,7 +22,7 @@ contract YieldFarmGenericToken {
     address private _poolTokenAddress;
     address private _communityVault;
     // contracts
-    IERC20 private _entr;
+    IERC20 private _fiat;
     IStaking private _staking;
 
 
@@ -38,8 +38,8 @@ contract YieldFarmGenericToken {
     event Harvest(address indexed user, uint128 indexed epochId, uint256 amount);
 
     // constructor
-    constructor(address poolTokenAddress, address entrTokenAddress, address stakeContract, address communityVault) public {
-        _entr = IERC20(entrTokenAddress);
+    constructor(address poolTokenAddress, address fiatTokenAddress, address stakeContract, address communityVault) public {
+        _fiat = IERC20(fiatTokenAddress);
         _poolTokenAddress = poolTokenAddress;
         _staking = IStaking(stakeContract);
         _communityVault = communityVault;
@@ -67,7 +67,7 @@ contract YieldFarmGenericToken {
         emit MassHarvest(msg.sender, epochId - lastEpochIdHarvested[msg.sender], totalDistributedValue);
 
         if (totalDistributedValue > 0) {
-            _entr.transferFrom(_communityVault, msg.sender, totalDistributedValue);
+            _fiat.transferFrom(_communityVault, msg.sender, totalDistributedValue);
         }
 
         return totalDistributedValue;
@@ -79,7 +79,7 @@ contract YieldFarmGenericToken {
         require (lastEpochIdHarvested[msg.sender].add(1) == epochId, "Harvest in order");
         uint userReward = _harvest(epochId);
         if (userReward > 0) {
-            _entr.transferFrom(_communityVault, msg.sender, userReward);
+            _fiat.transferFrom(_communityVault, msg.sender, userReward);
         }
         emit Harvest(msg.sender, epochId, userReward);
         return userReward;
