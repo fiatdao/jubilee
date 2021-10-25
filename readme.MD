@@ -52,7 +52,7 @@ FiatDAO YeldFarming is a fork of BarnBridge YeldFarming. Here you can find the o
 ## Rinkeby Contracts
 
 ### YieldFarmGenericToken.sol
-The farming rewards are paid in the Rinkeby FIAT: 0x822a5c31679f4a580deb6ae4596437acdb9ddcab
+The farming rewards are paid in the Rinkeby FDT: 0x822a5c31679f4a580deb6ae4596437acdb9ddcab
 
 We have 5 mock tokens for farming
 

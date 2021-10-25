@@ -1,7 +1,7 @@
 const hre = require('hardhat')
 const ethers = hre.ethers;
 
-async function deployCommunityVault(fiatTokenAddress) {
+async function deployCommunityVault(fdtTokenAddress) {
     await hre.run('compile'); // We are compiling the contracts using subtask
     const [deployer] = await ethers.getSigners(); // We are getting the deployer
 
@@ -9,7 +9,7 @@ async function deployCommunityVault(fiatTokenAddress) {
     console.log('Account balance:', (await deployer.getBalance()).toString()); // We are printing the account balance
 
     const CommunityVault = await ethers.getContractFactory("CommunityVault"); //
-    const communityVault = await CommunityVault.deploy(fiatTokenAddress);
+    const communityVault = await CommunityVault.deploy(fdtTokenAddress);
     console.log(`Waiting for CommunityVault deployment...`);
     await communityVault.deployTransaction.wait(5);
 
@@ -18,7 +18,7 @@ async function deployCommunityVault(fiatTokenAddress) {
     console.log(`Verifying ...`);
     await hre.run("verify:verify", {
         address: communityVault.address,
-        constructorArguments: [fiatTokenAddress],
+        constructorArguments: [fdtTokenAddress],
         contract: "contracts/CommunityVault.sol:CommunityVault",
     });
 

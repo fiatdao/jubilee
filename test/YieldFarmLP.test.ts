@@ -7,7 +7,7 @@ import { CommunityVault, ERC20Mock, Staking, YieldFarmSushiLPToken } from "../ty
 
 describe('YieldFarm Liquidity Pool', function () {
     let staking: Staking;
-    let fiatToken: ERC20Mock;
+    let fdtToken: ERC20Mock;
     let sushiLP: ERC20Mock;
     let communityVault: CommunityVault;
     let yieldFarm: YieldFarmSushiLPToken;
@@ -28,18 +28,18 @@ describe('YieldFarm Liquidity Pool', function () {
         userAddr = await user.getAddress();
 
         staking = (await deployContract("Staking", [epochStart, epochDuration])) as Staking;
-        fiatToken = (await deployContract("ERC20Mock", ["Mock Token", "MCK", 0])) as ERC20Mock;
+        fdtToken = (await deployContract("ERC20Mock", ["Mock Token", "MCK", 0])) as ERC20Mock;
         sushiLP = (await deployContract("ERC20Mock", ["Mock Token", "MCK", 0])) as ERC20Mock;
 
-        communityVault = (await deployContract("CommunityVault", [fiatToken.address])) as CommunityVault;
+        communityVault = (await deployContract("CommunityVault", [fdtToken.address])) as CommunityVault;
         yieldFarm = (await deployContract("YieldFarmSushiLPToken", [
             sushiLP.address,
-            fiatToken.address,
+            fdtToken.address,
             staking.address,
             communityVault.address,
         ])) as YieldFarmSushiLPToken;
 
-        await fiatToken.mint(communityVault.address, distributedAmount);
+        await fdtToken.mint(communityVault.address, distributedAmount);
         await communityVault.connect(creator).setAllowance(yieldFarm.address, distributedAmount);
     });
 
@@ -55,7 +55,7 @@ describe('YieldFarm Liquidity Pool', function () {
         it('should be deployed', async function () {
             expect(staking.address).to.not.equal(0)
             expect(yieldFarm.address).to.not.equal(0)
-            expect(fiatToken.address).to.not.equal(0)
+            expect(fdtToken.address).to.not.equal(0)
         })
 
         it('Get epoch PoolSize and distribute tokens', async function () {
@@ -65,11 +65,11 @@ describe('YieldFarm Liquidity Pool', function () {
 
             expect(await yieldFarm.getPoolSize(1)).to.equal(totalAmount)
             expect(await yieldFarm.getEpochStake(userAddr, 1)).to.equal(totalAmount)
-            expect(await fiatToken.allowance(communityVault.address, yieldFarm.address)).to.equal(distributedAmount)
+            expect(await fdtToken.allowance(communityVault.address, yieldFarm.address)).to.equal(distributedAmount)
             expect(await yieldFarm.getCurrentEpoch()).to.equal(2) // epoch on yield is staking - 1
 
             await yieldFarm.connect(user).harvest(1)
-            expect(await fiatToken.balanceOf(userAddr)).to.equal(distributedAmount.div(numberOfEpochs))
+            expect(await fdtToken.balanceOf(userAddr)).to.equal(distributedAmount.div(numberOfEpochs))
         })
     })
 
@@ -86,7 +86,7 @@ describe('YieldFarm Liquidity Pool', function () {
             await expect(yieldFarm.harvest(3)).to.be.revertedWith('Harvest in order')
             await (await yieldFarm.connect(user).harvest(1)).wait()
 
-            expect(await fiatToken.balanceOf(userAddr)).to.equal(
+            expect(await fdtToken.balanceOf(userAddr)).to.equal(
                 amount.mul(distributedAmount.div(numberOfEpochs)).div(totalAmount),
             )
             expect(await yieldFarm.connect(user).userLastEpochIdHarvested()).to.equal(1)
@@ -94,7 +94,7 @@ describe('YieldFarm Liquidity Pool', function () {
 
             await (await yieldFarm.connect(user).massHarvest()).wait()
             const totalDistributedAmount = amount.mul(distributedAmount.div(numberOfEpochs)).div(totalAmount).mul(7)
-            expect(await fiatToken.balanceOf(userAddr)).to.equal(totalDistributedAmount)
+            expect(await fdtToken.balanceOf(userAddr)).to.equal(totalDistributedAmount)
             expect(await yieldFarm.connect(user).userLastEpochIdHarvested()).to.equal(7)
             expect(await yieldFarm.lastInitializedEpoch()).to.equal(7) // epoch 7 have been initialized
         })
@@ -103,9 +103,9 @@ describe('YieldFarm Liquidity Pool', function () {
             await moveAtEpoch(epochStart, epochDuration, 30)
             expect(await yieldFarm.getPoolSize(1)).to.equal(amount)
             await yieldFarm.connect(creator).harvest(1)
-            expect(await fiatToken.balanceOf(await creator.getAddress())).to.equal(0)
+            expect(await fdtToken.balanceOf(await creator.getAddress())).to.equal(0)
             await yieldFarm.connect(creator).massHarvest()
-            expect(await fiatToken.balanceOf(await creator.getAddress())).to.equal(0)
+            expect(await fdtToken.balanceOf(await creator.getAddress())).to.equal(0)
         })
         it('harvest maximum 100 epochs', async function () {
             await depositsushiLP(amount)
@@ -124,7 +124,7 @@ describe('YieldFarm Liquidity Pool', function () {
         it('it should return 0 if no deposit in an epoch', async function () {
             await moveAtEpoch(epochStart, epochDuration, 3)
             await yieldFarm.connect(user).harvest(1)
-            expect(await fiatToken.balanceOf(await user.getAddress())).to.equal(0)
+            expect(await fdtToken.balanceOf(await user.getAddress())).to.equal(0)
         })
     })
 

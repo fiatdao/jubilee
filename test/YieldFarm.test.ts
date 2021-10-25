@@ -7,7 +7,7 @@ import { CommunityVault, ERC20Mock, Staking, YieldFarmGenericToken } from "../ty
 
 describe("YieldFarmGenericToken", function () {
     let staking: Staking;
-    let fiatToken: ERC20Mock, genericErc20: ERC20Mock;
+    let fdtToken: ERC20Mock, genericErc20: ERC20Mock;
     let communityVault: CommunityVault;
     let yieldFarm: YieldFarmGenericToken;
     let creator: Signer, owner: Signer, user: Signer;
@@ -28,18 +28,18 @@ describe("YieldFarmGenericToken", function () {
 
         staking = (await deployContract("Staking", [epochStart, epochDuration])) as Staking;
 
-        fiatToken = (await deployContract("ERC20Mock", ["Mock Token", "MCK", 0])) as ERC20Mock;
+        fdtToken = (await deployContract("ERC20Mock", ["Mock Token", "MCK", 0])) as ERC20Mock;
         genericErc20 = (await deployContract("ERC20Mock", ["Mock Token", "MCK", 0])) as ERC20Mock;
 
-        communityVault = (await deployContract("CommunityVault", [fiatToken.address])) as CommunityVault;
+        communityVault = (await deployContract("CommunityVault", [fdtToken.address])) as CommunityVault;
         yieldFarm = (await deployContract("YieldFarmGenericToken", [
             genericErc20.address,
-            fiatToken.address,
+            fdtToken.address,
             staking.address,
             communityVault.address
         ])) as YieldFarmGenericToken;
 
-        await fiatToken.mint(communityVault.address, distributedAmount);
+        await fdtToken.mint(communityVault.address, distributedAmount);
         await communityVault.connect(creator).setAllowance(yieldFarm.address, distributedAmount);
     });
 
@@ -55,7 +55,7 @@ describe("YieldFarmGenericToken", function () {
         it("should be deployed", async function () {
             expect(staking.address).to.not.equal(0);
             expect(yieldFarm.address).to.not.equal(0);
-            expect(fiatToken.address).to.not.equal(0);
+            expect(fdtToken.address).to.not.equal(0);
         });
         it("Get epoch PoolSize and distribute tokens", async function () {
             await depositGenericErc20(amount);
@@ -64,11 +64,11 @@ describe("YieldFarmGenericToken", function () {
             const totalAmount = amount;
             expect(await yieldFarm.getPoolSize(1)).to.equal(totalAmount);
             expect(await yieldFarm.getEpochStake(userAddr, 1)).to.equal(totalAmount);
-            expect(await fiatToken.allowance(communityVault.address, yieldFarm.address)).to.equal(distributedAmount);
+            expect(await fdtToken.allowance(communityVault.address, yieldFarm.address)).to.equal(distributedAmount);
             expect(await yieldFarm.getCurrentEpoch()).to.equal(3);
 
             await yieldFarm.connect(user).harvest(1);
-            expect(await fiatToken.balanceOf(userAddr)).to.equal(distributedAmount.div(20));
+            expect(await fdtToken.balanceOf(userAddr)).to.equal(distributedAmount.div(20));
         });
     });
 
@@ -84,7 +84,7 @@ describe("YieldFarmGenericToken", function () {
             await expect(yieldFarm.harvest(3)).to.be.revertedWith("Harvest in order");
 
             await yieldFarm.connect(user).harvest(1)
-            expect(await fiatToken.balanceOf(userAddr)).to.equal(
+            expect(await fdtToken.balanceOf(userAddr)).to.equal(
                 amount.mul(distributedAmount.div(20)).div(totalAmount)
             );
             expect(await yieldFarm.connect(user).userLastEpochIdHarvested()).to.equal(1);
@@ -92,7 +92,7 @@ describe("YieldFarmGenericToken", function () {
 
             await (await yieldFarm.connect(user).massHarvest()).wait();
             const totalDistributedAmount = amount.mul(distributedAmount.div(20)).div(totalAmount).mul(7);
-            expect(await fiatToken.balanceOf(userAddr)).to.equal(totalDistributedAmount);
+            expect(await fdtToken.balanceOf(userAddr)).to.equal(totalDistributedAmount);
             expect(await yieldFarm.connect(user).userLastEpochIdHarvested()).to.equal(7);
             expect(await yieldFarm.lastInitializedEpoch()).to.equal(7); // epoch 7 have been initialized
         });
@@ -102,9 +102,9 @@ describe("YieldFarmGenericToken", function () {
             await moveAtEpoch(epochStart, epochDuration, 9);
             expect(await yieldFarm.getPoolSize(1)).to.equal(amount);
             await yieldFarm.connect(owner).harvest(1);
-            expect(await fiatToken.balanceOf(await owner.getAddress())).to.equal(0);
+            expect(await fdtToken.balanceOf(await owner.getAddress())).to.equal(0);
             await yieldFarm.connect(owner).massHarvest();
-            expect(await fiatToken.balanceOf(await owner.getAddress())).to.equal(0);
+            expect(await fdtToken.balanceOf(await owner.getAddress())).to.equal(0);
         });
 
         it("harvest maximum 20 epochs", async function () {
@@ -125,7 +125,7 @@ describe("YieldFarmGenericToken", function () {
         it("it should return 0 if no deposit in an epoch", async function () {
             await moveAtEpoch(epochStart, epochDuration, 3);
             await yieldFarm.connect(owner).harvest(1);
-            expect(await fiatToken.balanceOf(await owner.getAddress())).to.equal(0);
+            expect(await fdtToken.balanceOf(await owner.getAddress())).to.equal(0);
         });
     });
 
