@@ -8,7 +8,7 @@
       },
       {
         "internalType": "address",
-        "name": "fiatTokenAddress",
+        "name": "fdtTokenAddress",
         "type": "address"
       },
       {

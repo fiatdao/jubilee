@@ -6,7 +6,7 @@ import { expect } from "chai";
 import { ERC20Mock, CommunityVault } from "../typechain";
 
 describe("CommunityVault", function () {
-    let fiatToken: ERC20Mock;
+    let fdtToken: ERC20Mock;
     let communityVault: CommunityVault;
     let creator: Signer, owner: Signer, user: Signer;
     let creatorAddr: string, ownerAddr: string, userAddr: string;
@@ -21,8 +21,8 @@ describe("CommunityVault", function () {
         ownerAddr = await owner.getAddress();
         userAddr = await user.getAddress();
 
-        fiatToken = (await deployContract("ERC20Mock", ["Mock Token", "MCK", 0])) as ERC20Mock;
-        communityVault = (await deployContract("CommunityVault", [fiatToken.address])) as CommunityVault;
+        fdtToken = (await deployContract("ERC20Mock", ["Mock Token", "MCK", 0])) as ERC20Mock;
+        communityVault = (await deployContract("CommunityVault", [fdtToken.address])) as CommunityVault;
     });
 
     beforeEach(async function () {
@@ -36,14 +36,14 @@ describe("CommunityVault", function () {
     describe("General Contract checks", function () {
         it("should be deployed", async function () {
             expect(communityVault.address).to.not.equal(0);
-            expect(fiatToken.address).to.not.equal(0);
+            expect(fdtToken.address).to.not.equal(0);
         });
     });
 
     describe("Contract Tests", function () {
-        it("Mint fiat tokens in community vault address", async function () {
-            await fiatToken.mint(communityVault.address, distributedAmount);
-            expect(await fiatToken.balanceOf(communityVault.address)).to.be.equal(distributedAmount);
+        it("Mint fdt tokens in community vault address", async function () {
+            await fdtToken.mint(communityVault.address, distributedAmount);
+            expect(await fdtToken.balanceOf(communityVault.address)).to.be.equal(distributedAmount);
         });
 
         it("should fail if no owner tries to set allowance", async function () {
@@ -53,9 +53,9 @@ describe("CommunityVault", function () {
         });
 
         it("should set allowance as owner", async function () {
-            await fiatToken.mint(communityVault.address, distributedAmount);
+            await fdtToken.mint(communityVault.address, distributedAmount);
             await communityVault.connect(creator).setAllowance(userAddr, distributedAmount);
-            expect(await fiatToken.allowance(communityVault.address, userAddr)).to.be.equal(distributedAmount);
+            expect(await fdtToken.allowance(communityVault.address, userAddr)).to.be.equal(distributedAmount);
         });
 
         it("should transfer ownership", async function () {
@@ -68,7 +68,7 @@ describe("CommunityVault", function () {
 
     describe("Events", function () {
         it("setAllowance emits SetAllowance", async function () {
-            await fiatToken.mint(communityVault.address, distributedAmount);
+            await fdtToken.mint(communityVault.address, distributedAmount);
             await expect(communityVault.connect(creator).setAllowance(userAddr, distributedAmount))
                 .to.emit(communityVault, "SetAllowance");
         });
