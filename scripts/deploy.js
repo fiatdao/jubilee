@@ -2,7 +2,7 @@ const hre = require('hardhat')
 const ethers = hre.ethers;
 const BN = ethers.BigNumber
 
-async function deployMainnet(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
+async function deployMainnet(fiatTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
 
     const poolTokenAddresses = [
         { name: 'XYZ', address: '0x618679df9efcd19694bb1daa8d00718eacfa2883' },
@@ -15,10 +15,10 @@ async function deployMainnet(entrTokenAddress, communityVaultAddress, startTime,
         // { name: 'LEAG', address: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2' }
     ];
 
-    return deploy(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch, _sushiSwapToken, poolTokenAddresses)
+    return deploy(fiatTokenAddress, communityVaultAddress, startTime, daysPerEpoch, _sushiSwapToken, poolTokenAddresses)
 }
 
-async function deployRinkeby(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
+async function deployRinkeby(fiatTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
 
     const poolTokenAddresses = [
         { name: 'XYZ', address: '0xB9FB3ad09457e92c710682BE066bC7b8bA5E42D6' },
@@ -31,10 +31,10 @@ async function deployRinkeby(entrTokenAddress, communityVaultAddress, startTime,
         // { name: 'LEAG', address: '0x03561a7965372c2d71b8ba6aE3D84DAa91dA4fd4' }
     ];
 
-    return deploy(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch, poolTokenAddresses)
+    return deploy(fiatTokenAddress, communityVaultAddress, startTime, daysPerEpoch, poolTokenAddresses)
 }
 
-async function deployGenericYF(communityVaultAddress, entrTokenAddress, stakingAddress, tokenAddress) {
+async function deployGenericYF(communityVaultAddress, fiatTokenAddress, stakingAddress, tokenAddress) {
     await hre.run('compile'); // We are compiling the contracts using subtask
     const [deployer] = await ethers.getSigners(); // We are getting the deployer
 
@@ -46,7 +46,7 @@ async function deployGenericYF(communityVaultAddress, entrTokenAddress, stakingA
     const staking = await ethers.getContractAt('Staking', stakingAddress)
 
     const YieldFarmGenericToken = await ethers.getContractFactory('YieldFarmGenericToken')
-    const yf = await YieldFarmGenericToken.deploy(tokenAddress, entrTokenAddress, staking.address, communityVaultAddress)
+    const yf = await YieldFarmGenericToken.deploy(tokenAddress, fiatTokenAddress, staking.address, communityVaultAddress)
     await yf.deployTransaction.wait(5)
     console.log(`YieldFarmGenericToken pool : `, yf.address)
     await cv.setAllowance(yf.address, BN.from(1000000).mul(tenPow18))
@@ -57,14 +57,14 @@ async function deployGenericYF(communityVaultAddress, entrTokenAddress, stakingA
     console.log(`Verifying Token ...`);
     await hre.run("verify:verify", {
         address: yf.address,
-        constructorArguments: [tokenAddress, entrTokenAddress, staking.address, communityVaultAddress],
+        constructorArguments: [tokenAddress, fiatTokenAddress, staking.address, communityVaultAddress],
         contract: "contracts/YieldFarmGenericToken.sol:YieldFarmGenericToken",
     });
 
     console.log('Done!');
 }
 
-async function deploySushiLPYF(communityVaultAddress, entrTokenAddress, stakingAddress, _sushiSwapToken) {
+async function deploySushiLPYF(communityVaultAddress, fiatTokenAddress, stakingAddress, _sushiSwapToken) {
     await hre.run('compile'); // We are compiling the contracts using subtask
     const [deployer] = await ethers.getSigners(); // We are getting the deployer
 
@@ -76,7 +76,7 @@ async function deploySushiLPYF(communityVaultAddress, entrTokenAddress, stakingA
     const staking = await ethers.getContractAt('Staking', stakingAddress)
 
     const YieldFarmSushiLPToken = await ethers.getContractFactory('YieldFarmSushiLPToken')
-    const yf = await YieldFarmSushiLPToken.deploy(_sushiSwapToken, entrTokenAddress, staking.address, communityVaultAddress)
+    const yf = await YieldFarmSushiLPToken.deploy(_sushiSwapToken, fiatTokenAddress, staking.address, communityVaultAddress)
     await yf.deployTransaction.wait(5)
     console.log(`YieldFarmSushiLPToken pool : `, yf.address)
     await cv.setAllowance(yf.address, BN.from(13000000).mul(tenPow18))
@@ -87,14 +87,14 @@ async function deploySushiLPYF(communityVaultAddress, entrTokenAddress, stakingA
     console.log(`Verifying Sushi ...`);
     await hre.run("verify:verify", {
         address: yf.address,
-        constructorArguments: [_sushiSwapToken, entrTokenAddress, staking.address, communityVaultAddress],
+        constructorArguments: [_sushiSwapToken, fiatTokenAddress, staking.address, communityVaultAddress],
         contract: "contracts/YieldFarmSushiLPToken.sol:YieldFarmSushiLPToken",
     });
 
     console.log('Done!');
 }
 
-async function deploy(entrTokenAddress, communityVaultAddress, startTime, daysPerEpoch, poolTokenAddresses) {
+async function deploy(fiatTokenAddress, communityVaultAddress, startTime, daysPerEpoch, poolTokenAddresses) {
     await hre.run('compile'); // We are compiling the contracts using subtask
     const [deployer] = await ethers.getSigners(); // We are getting the deployer
 
@@ -114,7 +114,7 @@ async function deploy(entrTokenAddress, communityVaultAddress, startTime, daysPe
 
     for (const poolTokenAddress of poolTokenAddresses) {
         console.log(`Deploy ${poolTokenAddress.name} farming`)
-        const yf = await YieldFarmGenericToken.deploy(poolTokenAddress.address, entrTokenAddress, staking.address, communityVaultAddress)
+        const yf = await YieldFarmGenericToken.deploy(poolTokenAddress.address, fiatTokenAddress, staking.address, communityVaultAddress)
         await yf.deployed()
         console.log(`YF pool, ${poolTokenAddress.name}: `, yf.address)
         deployedPoolAddresses.push(yf.address)
@@ -148,7 +148,7 @@ async function deploy(entrTokenAddress, communityVaultAddress, startTime, daysPe
         console.log(`Verifying ${poolTokenAddress.name} farming`);
         await hre.run("verify:verify", {
             address: deployedPoolAddress,
-            constructorArguments: [poolTokenAddress.address, entrTokenAddress, staking.address, communityVaultAddress],
+            constructorArguments: [poolTokenAddress.address, fiatTokenAddress, staking.address, communityVaultAddress],
             contract: "contracts/YieldFarmGenericToken.sol:YieldFarmGenericToken",
         })
     }
