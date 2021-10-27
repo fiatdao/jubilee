@@ -12,8 +12,8 @@ contract YieldFarmSushiLPToken {
     using SafeMath for uint128;
 
     // constants
-    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 600_000;
-    uint public constant NR_OF_EPOCHS = 100;
+    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 200_000;
+    uint public constant NR_OF_EPOCHS = 10;
     uint128 public constant EPOCHS_DELAYED_FROM_STAKING_CONTRACT = 1;
 
     // state variables

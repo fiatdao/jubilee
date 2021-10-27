@@ -19,15 +19,13 @@ async function deployMainnet(fdtTokenAddress, communityVaultAddress, startTime, 
 }
 
 async function deployRinkeby(fdtTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
-
     const poolTokenAddresses = [
-        { name: 'XYZ', address: '0xB9FB3ad09457e92c710682BE066bC7b8bA5E42D6' },
-        { name: 'MANA', address: '0x6c18AcA9D282fa7077D27ecaa8FC45039e50C42d' },
-        { name: 'SAND', address: '0x20e2e606F5e6b608A442Dd43EB3F29ce9aE9Eb08' },
-        { name: 'ILV', address: '0xAffA6e1DC32A7ac6fa04Dc5D07dDEFD8AC1C3e48' },
-        { name: 'AXS', address: '0x917cc2D7c43a1BdB907080b50b0F124b4e44984E' },
-        { name: 'BOND', address: '0x6bBe0A4C0FD35ef717A7D9F0a4184529A1eB65c2' },
-        { name: 'SNX', address: '0xA71f0e0FaC12e2c888858C4195B160411e3F9F45' },
+        // { name: 'BOND', address: '0x81Ea2B191bfD1C24bbFb5C9297d8a2f6352602cb' },
+        { name: 'UMA', address: '0xdb8fBc92a9D53226980D2B0bAeDa42484B0ce562' },
+        { name: 'MKR', address: '0xf6bA9907D08fE2589Cc41B9f1ae41EFBA8C5f273' },
+        { name: 'YFI', address: '0xE8643102261D5c4E1e2E3A082fea7251f58A7feb' },
+        { name: 'RGT', address: '0xefB37Add677c809075535Dc2CefA386b5B5A1F0f' },
+        { name: 'wsOHM', address: '0xAccDB008350e163D33a98357EF86Bd3A4092df61' }
         // { name: 'LEAG', address: '0x03561a7965372c2d71b8ba6aE3D84DAa91dA4fd4' }
     ];
 
@@ -79,7 +77,8 @@ async function deploySushiLPYF(communityVaultAddress, fdtTokenAddress, stakingAd
     const yf = await YieldFarmSushiLPToken.deploy(_sushiSwapToken, fdtTokenAddress, staking.address, communityVaultAddress)
     await yf.deployTransaction.wait(5)
     console.log(`YieldFarmSushiLPToken pool : `, yf.address)
-    await cv.setAllowance(yf.address, BN.from(13000000).mul(tenPow18))
+    // TODO Change with the correct amount
+    await cv.setAllowance(yf.address, BN.from(200000).mul(tenPow18))
 
     console.log("Manual initing epoch 0...");
     await staking.manualEpochInit([_sushiSwapToken], 0)
@@ -103,10 +102,13 @@ async function deploy(fdtTokenAddress, communityVaultAddress, startTime, daysPer
     console.log('Deploying contracts with the account:', deployer.address); // We are printing the address of the deployer
     console.log('Account balance:', (await deployer.getBalance()).toString()); // We are printing the account balance
 
-    const Staking = await ethers.getContractFactory('Staking')
     const epochTime = 60 * 60 * 24 * daysPerEpoch;
+
+    // TODO uncomment for already deployed staking
+    // const staking = await ethers.getContractAt('Staking', "0x9E5b1200973d32DF419e5a3900A7065aaEcBd652")
+    const Staking = await ethers.getContractFactory('Staking')
     const staking = await Staking.deploy(startTime, epochTime)
-    await staking.deployed()
+    await staking.deployTransaction.wait(5)
 
     console.log('Staking contract deployed to:', staking.address)
 
@@ -115,7 +117,8 @@ async function deploy(fdtTokenAddress, communityVaultAddress, startTime, daysPer
     for (const poolTokenAddress of poolTokenAddresses) {
         console.log(`Deploy ${poolTokenAddress.name} farming`)
         const yf = await YieldFarmGenericToken.deploy(poolTokenAddress.address, fdtTokenAddress, staking.address, communityVaultAddress)
-        await yf.deployed()
+        await yf.deployTransaction.wait(5)
+
         console.log(`YF pool, ${poolTokenAddress.name}: `, yf.address)
         deployedPoolAddresses.push(yf.address)
     }
@@ -126,12 +129,16 @@ async function deploy(fdtTokenAddress, communityVaultAddress, startTime, daysPer
 
     for (const deployedPoolAddress of deployedPoolAddresses) {
         console.log("Setting allowance...")
-        await cv.setAllowance(deployedPoolAddress, BN.from(1000000).mul(tenPow18))
+        // TODO Change the allowance based on the token rewards
+        await cv.setAllowance(deployedPoolAddress, BN.from(2000000).mul(tenPow18))
     }
-
 
     const poolTokens = poolTokenAddresses.map(x => x.address)
 
+    console.log("Manual initing epoch 0...");
+    await staking.manualEpochInit([...poolTokens], 0)
+
+    // TODO comment out when Staking is already verified
     console.log("Manual initing epoch 0...");
     await staking.manualEpochInit([...poolTokens], 0)
 

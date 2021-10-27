@@ -12,8 +12,8 @@ contract YieldFarmGenericToken {
     using SafeMath for uint128;
 
     // constants
-    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 100_000;
-    uint public constant NR_OF_EPOCHS = 20;
+    uint public constant TOTAL_DISTRIBUTED_AMOUNT = 2_000_000;
+    uint public constant NR_OF_EPOCHS = 4;
     uint128 public constant EPOCHS_DELAYED_FROM_STAKING_CONTRACT = 0;
 
     // state variables
