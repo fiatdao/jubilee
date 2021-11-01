@@ -1,11 +1,11 @@
-# FiatDAO YieldFarm contracts
+# FIAT DAO Liquidity Mining contracts
 
 ## Running tests
 **Note:** The result of tests is readily available [here](./test-results.md).
 
 ### 1. Clone this repo
 ```shell
-git clone https://github.com/FiatDAO/FIAT-YieldFarming
+git clone https://github.com/fiatdao/liquidity-mining
 ```
 
 ### 2. Install dependencies
@@ -21,7 +21,7 @@ npm test
 npm run coverage
 ```
 
-FiatDAO YeldFarming is a fork of BarnBridge YeldFarming. Here you can find the original contract audits and more info about the the architecture:
+FIAT DAO Liquidity Mining is a fork of BarnBridge YeldFarming. Here you can find the original contract audits and more info about the the architecture:
 ### [Smart Contract External Audit](https://github.com/BarnBridge/BarnBridge-YieldFarming/blob/master/BarnBridge-Yield-Farming-and-Incentivization-AUDIT.pdf)
 
 ## Smart Contract Architecture
@@ -56,15 +56,15 @@ The farming rewards are paid in the Rinkeby FDT: 0x822a5c31679f4a580deb6ae459643
 
 We have 5 mock tokens for farming
 
-[Fiat AAVE](https://rinkeby.etherscan.io/address/0xB81Ed1453Ab2db133A10a8c97888BEbe82cFac9C#code)
+[FDT AAVE](https://rinkeby.etherscan.io/address/0xB81Ed1453Ab2db133A10a8c97888BEbe82cFac9C#code)
 
-[Fiat XYZ](https://rinkeby.etherscan.io/address/0x5FfA3420213348a11b54063e3Dc0fda5e87891ab#code)
+[FDT XYZ](https://rinkeby.etherscan.io/address/0x5FfA3420213348a11b54063e3Dc0fda5e87891ab#code)
 
-[Fiat ILV](https://rinkeby.etherscan.io/address/0x969e55dFA15396Da623769C0A0D651a187EbDc67#code)
+[FDT ILV](https://rinkeby.etherscan.io/address/0x969e55dFA15396Da623769C0A0D651a187EbDc67#code)
 
-[Fiat BOND](https://rinkeby.etherscan.io/address/0x038D06578Bb35EaE582EDfCc869fFa0E93761F2B#code)
+[FDT BOND](https://rinkeby.etherscan.io/address/0x038D06578Bb35EaE582EDfCc869fFa0E93761F2B#code)
 
-[Fiat Sushi LP](https://rinkeby.etherscan.io/address/0x43f0265F0A0E81365051220aa24E9CeC4796a741#code)
+[FDT Sushi LP](https://rinkeby.etherscan.io/address/0x43f0265F0A0E81365051220aa24E9CeC4796a741#code)
 
 You can go ahead and trigger their mint function to mint new tokens - they are free.
 
