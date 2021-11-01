@@ -1,11 +1,11 @@
-# FIAT DAO Yield Farming contracts
+# FIAT DAO - Yield Farming contracts
 
 ## Running tests
 **Note:** The result of tests is readily available [here](./test-results.md).
 
 ### 1. Clone this repo
 ```shell
-git clone https://github.com/fiatdao/farms
+git clone https://github.com/fiatdao/ceres
 ```
 
 ### 2. Install dependencies
