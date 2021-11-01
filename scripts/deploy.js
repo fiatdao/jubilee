@@ -5,17 +5,17 @@ const BN = ethers.BigNumber
 async function deployMainnet(fdtTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
 
     const poolTokenAddresses = [
-        { name: 'XYZ', address: '0x618679df9efcd19694bb1daa8d00718eacfa2883' },
-        { name: 'MANA', address: '0x0f5d2fb29fb7d3cfee444a200298f468908cc942' },
-        { name: 'SAND', address: '0x3845badade8e6dff049820680d1f14bd3903a5d0' },
-        { name: 'ILV', address: '0x767fe9edc9e0df98e07454847909b5e959d7ca0e' },
-        { name: 'AXS', address: '0xbb0e17ef65f82ab018d8edd776e8dd940327b28b' },
-        { name: 'BOND', address: '0x0391d2021f89dc339f60fff84546ea23e337750f' },
-        { name: 'SNX', address: '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f' },
+        { name: 'BOND', address: '0x0391D2021f89DC339F60Fff84546EA23E337750f' },
+        // { name: 'MANA', address: '0x0f5d2fb29fb7d3cfee444a200298f468908cc942' },
+        // { name: 'SAND', address: '0x3845badade8e6dff049820680d1f14bd3903a5d0' },
+        // { name: 'ILV', address: '0x767fe9edc9e0df98e07454847909b5e959d7ca0e' },
+        // { name: 'AXS', address: '0xbb0e17ef65f82ab018d8edd776e8dd940327b28b' },
+        // { name: 'BOND', address: '0x0391d2021f89dc339f60fff84546ea23e337750f' },
+        // { name: 'SNX', address: '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f' },
         // { name: 'LEAG', address: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2' }
     ];
 
-    return deploy(fdtTokenAddress, communityVaultAddress, startTime, daysPerEpoch, _sushiSwapToken, poolTokenAddresses)
+    return deploy(fdtTokenAddress, communityVaultAddress, startTime, daysPerEpoch, poolTokenAddresses)
 }
 
 async function deployRinkeby(fdtTokenAddress, communityVaultAddress, startTime, daysPerEpoch) {
