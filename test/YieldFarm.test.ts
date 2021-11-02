@@ -106,7 +106,12 @@ describe("YieldFarmGenericToken", function () {
             await yieldFarm.connect(owner).massHarvest();
             expect(await fdtToken.balanceOf(await owner.getAddress())).to.equal(0);
         });
-
+        it("Fail to harvest more epochs than the maximum", async function () {
+            await depositGenericErc20(amount);
+            await moveAtEpoch(epochStart, epochDuration, 27);
+            expect(await yieldFarm.getPoolSize(1)).to.equal(amount);
+            await expect(yieldFarm.harvest(25)).to.be.revertedWith("Maximum number of epochs is 20");
+        });
         it("harvest maximum 20 epochs", async function () {
             await depositGenericErc20(amount);
             const totalAmount = amount;

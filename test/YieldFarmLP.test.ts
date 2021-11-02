@@ -107,6 +107,12 @@ describe('YieldFarm Liquidity Pool', function () {
             await yieldFarm.connect(creator).massHarvest()
             expect(await fdtToken.balanceOf(await creator.getAddress())).to.equal(0)
         })
+        it("Fail to harvest more epochs than the maximum", async function () {
+            await depositsushiLP(amount);
+            await moveAtEpoch(epochStart, epochDuration, 112);
+            expect(await yieldFarm.getPoolSize(1)).to.equal(amount);
+            await expect(yieldFarm.harvest(110)).to.be.revertedWith("Maximum number of epochs is 100");
+        });
         it('harvest maximum 100 epochs', async function () {
             await depositsushiLP(amount)
             const totalAmount = amount
