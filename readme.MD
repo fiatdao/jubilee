@@ -1,4 +1,6 @@
-# FIAT DAO - Yield Farming contracts
+# FIAT DAO - Jubilee Rewards Contracts
+
+This is a fork of [BarnBridge-YieldFarming](https://github.com/BarnBridge/BarnBridge-YieldFarming). Here you can find the original contract audits, some basic info about the the architecture and the addresses of the Jubilee Rewards contracts on Mainnet and Rinkeby.
 
 ## Running tests
 **Note:** The result of tests is readily available [here](./test-results.md).
@@ -21,15 +23,18 @@ npm test
 npm run coverage
 ```
 
-This is a fork of BarnBridge-YieldFarming. Here you can find the original contract audits and more info about the the architecture:
-### [Smart Contract External Audit](https://github.com/BarnBridge/BarnBridge-YieldFarming/blob/master/BarnBridge-Yield-Farming-and-Incentivization-AUDIT.pdf)
+## Smart Contract External Audit
+
+The contracts have been formally audited and the original report from the BarnBridge audit can be found [here](https://github.com/fiatdao/jubilee/blob/main/BarnBridge-Yield-Farming-and-Incentivization-AUDIT.pdf).
 
 ## Smart Contract Architecture
-![yf sc architecture](https://user-images.githubusercontent.com/4047772/120464712-e7bee680-c3a5-11eb-97ea-80df581af5ef.png)
+![yf sc architecture](https://user-images.githubusercontent.com/6073094/140610823-711065a2-0b99-4d12-b7d6-4d37a5dc02d7.png)
 
 # Active Contracts
 
 ## Mainnet Contracts
+
+[FDT](https://etherscan.io/address/0xed1480d12be41d92f36f5f7bdd88212e381a3677)
 
 [Staking](https://etherscan.io/address/0xe98ae8cD25CDC06562c29231Db339d17D02Fd486#code)
 
@@ -49,10 +54,9 @@ This is a fork of BarnBridge-YieldFarming. Here you can find the original contra
 
 ## Rinkeby Contracts
 
-### YieldFarmGenericToken.sol
-The farming rewards are paid in the Rinkeby FDT: 0xb9e8d9890b41eb4b21b52353a5d4671f48b9840f
+### Mock ERC-20 contracts
 
-We have 5 mock tokens for farming
+We have deployed 5 mock contracts on Rinkeby with which one can farm our Rinkeby-FDT token:
 
 [FDT-BOND](https://rinkeby.etherscan.io/address/0x81Ea2B191bfD1C24bbFb5C9297d8a2f6352602cb#code)
 
@@ -64,9 +68,11 @@ We have 5 mock tokens for farming
 
 [FDT-Sushi LP](https://rinkeby.etherscan.io/address/0xf21040AAFb938FE8fA3d4e10A3278Fea77B051BD#code)
 
-You can go ahead and trigger their mint function to mint new tokens - they are free.
+You can go ahead and trigger their mint function to mint new tokens and farm like a whale - they are free.
 
 ### Addresses
+
+[Rinkeby-FDT](https://rinkeby.etherscan.io/address/0xb9e8d9890b41eb4b21b52353a5d4671f48b9840f)
 
 [Staking](https://rinkeby.etherscan.io/address/0x9E5b1200973d32DF419e5a3900A7065aaEcBd652#code)
 
