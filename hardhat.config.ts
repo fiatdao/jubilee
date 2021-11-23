@@ -70,6 +70,16 @@ task("deploy-LP", "Deploys LP")
         await deploySushiLPYF(vault, token, staking, lptoken);
     });
 
+task("deploy-extension-yf", "Deploys LP")
+    .addParam("token", "The token of the rewards")
+    .addParam("vault", "The valut address")
+    .addParam("staking", "The staking contract address")
+    .addParam("lptoken", "The LP token")
+    .setAction(async ({ vault, token, staking, lptoken }, hre, runSuper) => {
+        const { deployExtensionYF } = require("./scripts/deploy");
+        await deployExtensionYF(vault, token, staking, lptoken);
+    });
+
 task("deploy-YF", "Deploys Generif YF")
     .addParam("token", "The token of the rewards")
     .addParam("vault", "The valut address")
