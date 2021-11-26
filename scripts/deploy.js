@@ -94,6 +94,36 @@ async function deploySushiLPYF(communityVaultAddress, fdtTokenAddress, stakingAd
     console.log('Done!');
 }
 
+async function deployExtensionYF(communityVaultAddress, fdtTokenAddress, stakingAddress, _sushiSwapToken) {
+    await hre.run('compile'); // We are compiling the contracts using subtask
+    const [deployer] = await ethers.getSigners(); // We are getting the deployer
+
+    console.log('Deploying contracts with the account:', deployer.address); // We are printing the address of the deployer
+    console.log('Account balance:', (await deployer.getBalance()).toString()); // We are printing the account balance
+
+    const tenPow18 = BN.from(10).pow(18)
+    const cv = await ethers.getContractAt('CommunityVault', communityVaultAddress)
+    const staking = await ethers.getContractAt('Staking', stakingAddress)
+
+    const YieldFarmSushiLPTokenExtension = await ethers.getContractFactory('YieldFarmSushiLPTokenExtension')
+    const yf = await YieldFarmSushiLPTokenExtension.deploy(_sushiSwapToken, fdtTokenAddress, staking.address, communityVaultAddress)
+    await yf.deployTransaction.wait(7)
+    console.log(`YieldFarmSushiLPTokenExtension pool : `, yf.address)
+    await cv.setAllowance(yf.address, BN.from(500_000).mul(tenPow18))
+
+    console.log("Manual initing epoch 4...");
+    await staking.manualEpochInit([_sushiSwapToken], 4)
+
+    console.log(`Verifying Sushi ...`);
+    await hre.run("verify:verify", {
+        address: yf.address,
+        constructorArguments: [_sushiSwapToken, fdtTokenAddress, staking.address, communityVaultAddress],
+        contract: "contracts/YieldFarmSushiLPTokenExtension.sol:YieldFarmSushiLPTokenExtension",
+    });
+
+    console.log('Done!');
+}
+
 async function deploy(fdtTokenAddress, communityVaultAddress, startTime, daysPerEpoch, poolTokenAddresses) {
     await hre.run('compile'); // We are compiling the contracts using subtask
     const [deployer] = await ethers.getSigners(); // We are getting the deployer
@@ -156,4 +186,4 @@ async function deploy(fdtTokenAddress, communityVaultAddress, startTime, daysPer
     console.log('Done!');
 }
 
-module.exports = { deployRinkeby, deploySushiLPYF, deployGenericYF, deployMainnet }
+module.exports = { deployRinkeby, deploySushiLPYF, deployGenericYF, deployMainnet, deployExtensionYF }
