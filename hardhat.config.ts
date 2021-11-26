@@ -90,16 +90,13 @@ const cfg: HardhatUserConfig = {
             },
         }
     },
-
     defaultNetwork: "hardhat",
     networks: config.networks,
     etherscan: config.etherscan,
-
     abiExporter: {
         only: ['Staking', 'YieldFarm', 'ERC20Mock', 'CommunityVault'],
         clear: true,
     },
-
     gasReporter: {
         enabled: !!(process.env.REPORT_GAS),
     },
