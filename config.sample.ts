@@ -26,7 +26,7 @@ export const networks: NetworksUserConfig = {
     mainnet: {
         url: "https://mainnet.infura.io/v3/YOUR-INFURA-KEY",
         chainId: 1,
-        accounts: ["0xaaaa"],
+        accounts: ["0x0000000000000000000000000000000000000000000000000000000000000000"],
         gas: "auto",
         gasPrice: 50000000000,
         gasMultiplier: 1.5
