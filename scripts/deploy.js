@@ -111,8 +111,9 @@ async function deployExtensionYF(communityVaultAddress, fdtTokenAddress, staking
     console.log(`YieldFarmSushiLPTokenExtension pool : `, yf.address)
     await cv.setAllowance(yf.address, BN.from(500_000).mul(tenPow18))
 
-    console.log("Manual initing epoch 4...");
-    await staking.manualEpochInit([_sushiSwapToken], 4)
+    // If immediate extension, no need to manual init epochs
+    // console.log("Manual initing epoch 4...");
+    // await staking.manualEpochInit([_sushiSwapToken], 4)
 
     console.log(`Verifying Sushi ...`);
     await hre.run("verify:verify", {
